@@ -7,6 +7,7 @@ import (
 	"server/pkg/db"
 	"server/pkg/server"
 	"server/pkg/session"
+	"server/pkg/storage"
 )
 
 func main() {
@@ -14,7 +15,8 @@ func main() {
 	app := server.Setup()
 	db.Setup()
 	model.Migrate()
-	session.Setup()
+	storage.Setup()
+	session.Setup(storage.GetStorage())
 	apiGroup := app.Group("/api")
 	handler.NewAuthHandler(db.GetDB(), apiGroup)
 	server.StartServer(app)

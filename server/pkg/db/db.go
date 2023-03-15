@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 	"database/sql"
+	_ "github.com/glebarez/go-sqlite"
 	"log"
-	_ "modernc.org/sqlite"
 	"server/pkg/config"
 )
 

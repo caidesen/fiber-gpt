@@ -11,12 +11,10 @@ func Setup() *fiber.App {
 	// Define a new Fiber app with config.
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			status := fiber.StatusInternalServerError
 			if e, ok := err.(*fiber.Error); ok {
-				status = e.Code
+				return c.Status(e.Code).JSON(fiber.Map{"error": true, "message": e.Message})
 			}
-			s := c.Status(status)
-			return s.JSON(fiber.Map{"error": true, "message": err.Error()})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error()})
 		},
 	})
 	return app

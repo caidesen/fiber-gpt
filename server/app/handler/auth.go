@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	"server/app/model"
@@ -43,14 +42,15 @@ type userVo struct {
 func (h *AuthHandler) login(c *fiber.Ctx, input *loginInput) (*userVo, error) {
 	user, err := repo.GetUserByUsername(c.Context(), h.db, input.Username)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("用户不存在")
+		inputErr := server.NewInputErr("用户名不存在")
+		return nil, inputErr
 	}
 	if err != nil {
 		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
 	if err != nil {
-		return nil, fmt.Errorf("密码不正确")
+		return nil, server.NewInputErr("密码错误")
 	}
 	sess, err := session.GetSession(c)
 	sess.Set("uid", user.Id)
@@ -69,7 +69,7 @@ func (h *AuthHandler) register(c *fiber.Ctx, input *loginInput) (*userVo, error)
 		return nil, err
 	}
 	if user != nil {
-		return nil, fmt.Errorf("用户名已存在")
+		return nil, server.NewInputErr("用户名已存在")
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
 	if err != nil {

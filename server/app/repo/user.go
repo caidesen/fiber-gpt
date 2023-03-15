@@ -7,32 +7,14 @@ import (
 )
 
 func GetUserById(c context.Context, db db.Runner, userId uint) (*model.User, error) {
-	query, err := db.QueryContext(c, "SELECT id, nickname, username, password FROM users WHERE id = ?", userId)
-	if err != nil {
-		return nil, err
-	}
 	var user model.User
-	for query.Next() {
-		err := query.Scan(&user.Id, &user.Nickname, &user.Username, &user.Password)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &user, nil
+	err := db.QueryRowContext(c, "SELECT id, nickname, username, password FROM users WHERE id = ?", userId).Scan(&user.Id, &user.Nickname, &user.Username, &user.Password)
+	return &user, err
 }
 func GetUserByUsername(c context.Context, db db.Runner, username string) (*model.User, error) {
-	query, err := db.QueryContext(c, "SELECT id, nickname, username, password FROM users WHERE username = ?", username)
-	if err != nil {
-		return nil, err
-	}
 	var user model.User
-	for query.Next() {
-		err := query.Scan(&user.Id, &user.Nickname, &user.Username, &user.Password)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &user, nil
+	err := db.QueryRowContext(c, "SELECT id, nickname, username, password FROM users WHERE username = ?", username).Scan(&user.Id, &user.Nickname, &user.Username, &user.Password)
+	return &user, err
 }
 
 func InsertUser(c context.Context, db db.Runner, user *model.User) error {
