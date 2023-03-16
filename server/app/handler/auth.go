@@ -39,41 +39,41 @@ type userVo struct {
 	Nickname string  `json:"nickname"`
 }
 
-func (h *AuthHandler) login(c *fiber.Ctx, input *loginInput) (*userVo, error) {
+func (h *AuthHandler) login(c *fiber.Ctx, input *loginInput) error {
 	user, err := repo.GetUserByUsername(c.Context(), h.db, input.Username)
 	if errors.Is(err, sql.ErrNoRows) {
 		inputErr := server.NewInputErr("用户名不存在")
-		return nil, inputErr
+		return inputErr
 	}
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
 	if err != nil {
-		return nil, server.NewInputErr("密码错误")
+		return server.NewInputErr("密码错误")
 	}
 	sess, err := session.GetSession(c)
 	sess.Set("uid", user.Id)
 	if err = sess.Save(); err != nil {
-		return nil, err
+		return err
 	}
-	return &userVo{
+	return c.JSON(userVo{
 		Id:       hash.ID(user.Id),
 		Nickname: user.Nickname,
-	}, nil
+	})
 }
 
-func (h *AuthHandler) register(c *fiber.Ctx, input *loginInput) (*userVo, error) {
+func (h *AuthHandler) register(c *fiber.Ctx, input *loginInput) error {
 	user, err := repo.GetUserByUsername(c.Context(), h.db, input.Username)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return nil, err
+		return err
 	}
 	if user != nil {
-		return nil, server.NewInputErr("用户名已存在")
+		return server.NewInputErr("用户名已存在")
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	user = &model.User{
 		Nickname: input.Username,
@@ -82,12 +82,12 @@ func (h *AuthHandler) register(c *fiber.Ctx, input *loginInput) (*userVo, error)
 	}
 	err = repo.InsertUser(c.Context(), h.db, user)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &userVo{
+	return c.JSON(userVo{
 		Id:       hash.ID(user.Id),
 		Nickname: user.Nickname,
-	}, nil
+	})
 }
 
 func (h *AuthHandler) logout(c *fiber.Ctx) error {

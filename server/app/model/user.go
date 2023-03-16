@@ -7,29 +7,31 @@ import (
 )
 
 type User struct {
-	Id       uint   `db:"id"`
-	Nickname string `db:"nickname"`
-	Username string `db:"username"`
-	Password string `db:"password"`
+	Id       uint
+	Nickname string
+	Username string
+	Password string
 }
 type GptSetting struct {
-	UserId      uint    `db:"user_id"`
-	ApiKey      string  `db:"api_key"`
-	Temperature float32 `db:"temperature"`
-	MaxToken    int     `db:"max_token"`
+	UserId      uint
+	ApiKey      string
+	Temperature float32
+	MaxToken    int
 }
 type Chat struct {
-	Id          uint    `db:"id"`
-	UserId      uint    `db:"user_id"`
-	MaxToken    int     `db:"max_token"`
-	Temperature float32 `db:"Temperature"`
+	Id          uint
+	UserId      uint
+	MaxToken    int
+	Temperature float32
+	Questions   []*Question
 }
 type Question struct {
-	Id        uint      `db:"id"`
-	Q         string    `db:"q"`
-	A         string    `db:"a"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	Id        uint
+	ChatId    uint
+	Q         string
+	A         string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 var createTable = `
@@ -56,6 +58,7 @@ CREATE TABLE IF NOT EXISTS chats
 );
 CREATE TABLE IF NOT EXISTS questions (
    id INTEGER PRIMARY KEY,
+   chat_id INTEGER,
    q TEXT,
    a TEXT,
    created_at DATE,

@@ -15,3 +15,14 @@ func Setup(storage fiber.Storage) {
 func GetSession(c *fiber.Ctx) (*session.Session, error) {
 	return store.Get(c)
 }
+func GetUserId(c *fiber.Ctx) (uint, error) {
+	sess, err := GetSession(c)
+	if err != nil {
+		return 0, err
+	}
+	uid := sess.Get("uid")
+	if uid == nil {
+		return 0, nil
+	}
+	return uid.(uint), nil
+}

@@ -19,5 +19,6 @@ func main() {
 	session.Setup(storage.GetStorage())
 	apiGroup := app.Group("/api")
 	handler.NewAuthHandler(db.GetDB(), apiGroup)
+	handler.NewGptSettingHandler(db.GetDB(), apiGroup)
 	server.StartServer(app)
 }

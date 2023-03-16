@@ -14,7 +14,7 @@ export function request<T>(url: string, options?: RequestInit): Promise<T> {
   const optionsWithDefault = Object.assign({}, defaultOptions, options)
   return fetch(new URL(url, baseUrl), optionsWithDefault).then(res => {
     if (res.ok) {
-      return res.json()
+      return res.json().catch(() => undefined as T)
     }
     if (res.headers.get('content-type')?.includes('application/json')) {
       return res.json().then(e => {

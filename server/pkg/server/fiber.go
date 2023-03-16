@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"log"
 	"server/pkg/config"
 )
@@ -17,6 +18,7 @@ func Setup() *fiber.App {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error()})
 		},
 	})
+	app.Use(logger.New())
 	return app
 }
 
@@ -28,16 +30,12 @@ func StartServer(a *fiber.App) {
 	}
 }
 
-func WithJSONBody[T any, R any](handle func(*fiber.Ctx, T) (R, error)) func(*fiber.Ctx) error {
+func WithJSONBody[T any](handle func(*fiber.Ctx, T) error) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		input := new(T)
 		if err := c.BodyParser(input); err != nil {
 			return err
 		}
-		result, err := handle(c, *input)
-		if err != nil {
-			return err
-		}
-		return c.JSON(result)
+		return handle(c, *input)
 	}
 }
