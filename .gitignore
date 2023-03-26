@@ -1,3 +1,7 @@
+# idea
+.idea
+# mac
+.DS_Store
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -13,3 +17,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+config.yaml
+*.sqlite
+session.db
+/build/*

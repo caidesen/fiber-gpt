@@ -1,19 +1,19 @@
 import { Container, TextField, Typography } from '@mui/material'
 import { useMutation } from 'react-query'
-import { login } from '@/api/auth'
+import { register } from '@/api/auth'
 import { useNotification } from '@/utils/notification'
 import { useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { LoadingButton } from '@mui/lab'
 import _ from '@/utils/lodash'
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate()
   const notification = useNotification()
-  const { mutate, isLoading } = useMutation(login, {
+  const { mutate, isLoading } = useMutation(register, {
     onSuccess() {
-      notification.success('登录成功')
-      navigate('/', { replace: true })
+      notification.success('注册成功')
+      navigate('/login', { replace: true })
     },
     onError: notification.error,
   })
@@ -21,6 +21,7 @@ export default function Login() {
     defaultValues: {
       username: '',
       password: '',
+      passwordAgain: '',
     },
   })
   return (
@@ -61,6 +62,29 @@ export default function Login() {
           )}
           control={control}
         />
+        <Controller
+          name="passwordAgain"
+          rules={{
+            required: '密码不能为空',
+            validate(val, formState) {
+              if (val !== formState.password) {
+                return '两次输入的密码不一致'
+              }
+              return true
+            },
+          }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              type="password"
+              variant="standard"
+              fullWidth
+              label="再次输入密码"
+              sx={{ mb: 4 }}
+            />
+          )}
+          control={control}
+        />
         <LoadingButton
           loading={isLoading}
           type="submit"
@@ -69,7 +93,7 @@ export default function Login() {
           fullWidth
           size="large"
         >
-          登录
+          注册
         </LoadingButton>
       </form>
     </Container>

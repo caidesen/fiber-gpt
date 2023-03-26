@@ -1,4 +1,4 @@
-import { crf } from '../utils/request'
+import { crf } from '@/utils/request'
 
 export interface User {
   id: string
@@ -10,3 +10,4 @@ export interface LoginInput {
   password: string
 }
 export const login = crf<User, LoginInput>('auth/login')
+export const register = crf<User, LoginInput>('auth/register')

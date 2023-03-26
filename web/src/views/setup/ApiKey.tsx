@@ -2,20 +2,20 @@ import { Stack, TextField } from '@mui/material'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getGptSettings, setGptSettings } from '../../api/settings'
+import { getGptSettings, setGptSettings } from '@/api/settings'
 import { Controller, useForm } from 'react-hook-form'
 import { LoadingButton } from '@mui/lab'
-import { useNotification } from '../../utils/notification'
-import _ from 'lodash'
+import { useNotification } from '@/utils/notification'
+import _ from '@/utils/lodash'
 
-const geApiKey = _.partial(_.get, _, 'apiKey', '')
 export function ApiKeyForm() {
   const { error } = useNotification()
   const { data: originData } = useQuery(getGptSettings.cacheName, () => getGptSettings(), {
     staleTime: 5 * 60 * 1000,
     onSuccess(res) {
-      setValue('apiKey', geApiKey(res))
+      setValue('apiKey', res.apiKey ?? '')
     },
+    onError: error,
   })
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -28,7 +28,7 @@ export function ApiKeyForm() {
   })
   const { handleSubmit, control, setValue } = useForm({
     defaultValues: {
-      apiKey: geApiKey(originData),
+      apiKey: originData?.apiKey ?? '',
     },
   })
   return (

@@ -10,11 +10,13 @@ const defaultOptions: RequestInit = {
   },
 }
 
-export function request<T>(url: string, options?: RequestInit): Promise<T> {
+export function request<T>(url: string, options?: RequestInit): Promise<T | Response> {
   const optionsWithDefault = Object.assign({}, defaultOptions, options)
   return fetch(new URL(url, baseUrl), optionsWithDefault).then(res => {
     if (res.ok) {
-      return res.json().catch(() => undefined as T)
+      if (res.headers.get('content-type')?.includes('application/json'))
+        return res.json().catch(() => undefined as T)
+      return res
     }
     if (res.headers.get('content-type')?.includes('application/json')) {
       return res.json().then(e => {
@@ -38,7 +40,7 @@ export function crf<Result = any, Input = any>(
       url,
       Object.assign({ method: 'POST', body: data && JSON.stringify(data) }, o, options),
     )
-  }
+  } as RequestFn<Result, Input>
   fn.cacheName = url.toString()
   return fn
 }
